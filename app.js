@@ -530,14 +530,8 @@ function requestJSONP(
 ) {
 
   return new Promise(
-    function(
-      resolve,
-      reject
-    ) {
+    function(resolve, reject) {
 
-      /*
-       * Callback unik.
-       */
       const callbackName =
         "portalCallback_" +
         Date.now() +
@@ -547,65 +541,42 @@ function requestJSONP(
           .substring(2);
 
 
-      /*
-       * Script.
-       */
       const script =
-        document.createElement(
-          "script"
-        );
+        document.createElement("script");
 
 
-      let finished =
-        false;
+      let finished = false;
+
+      let timer;
 
 
-      /*
-       * Cleanup.
-       */
       function cleanup() {
 
-        if (
-          finished
-        ) {
-
+        if (finished) {
           return;
-
         }
 
+        finished = true;
 
-        finished =
-          true;
-
-
-        clearTimeout(
-          timer
-        );
-
+        clearTimeout(timer);
 
         try {
 
-          delete window[
-            callbackName
-          ];
+          delete window[callbackName];
 
         } catch (error) {
 
-          window[
-            callbackName
-          ] = undefined;
+          window[callbackName] =
+            undefined;
 
         }
 
 
-        if (
-          script.parentNode
-        ) {
+        if (script.parentNode) {
 
-          script.parentNode
-            .removeChild(
-              script
-            );
+          script.parentNode.removeChild(
+            script
+          );
 
         }
 
@@ -613,27 +584,33 @@ function requestJSONP(
 
 
       /*
-       * Callback JSONP.
+       * Callback JSONP
        */
-      window[
-        callbackName
-      ] =
+      window[callbackName] =
         function(data) {
+
+          console.log(
+            "JSONP BERHASIL:",
+            data
+          );
 
           cleanup();
 
-          resolve(
-            data
-          );
+          resolve(data);
 
         };
 
 
       /*
-       * Error.
+       * Error script
        */
       script.onerror =
-        function() {
+        function(error) {
+
+          console.error(
+            "JSONP SCRIPT ERROR:",
+            error
+          );
 
           cleanup();
 
@@ -647,11 +624,16 @@ function requestJSONP(
 
 
       /*
-       * TIMEOUT.
+       * Timeout
        */
-      const timer =
+      timer =
         setTimeout(
           function() {
+
+            console.error(
+              "JSONP TIMEOUT:",
+              baseUrl
+            );
 
             cleanup();
 
@@ -667,30 +649,36 @@ function requestJSONP(
 
 
       /*
-       * Anti browser cache.
+       * Bangun URL JSONP
        */
       const separator =
-        baseUrl.includes(
-          "?"
-        )
+        baseUrl.includes("?")
           ? "&"
           : "?";
 
 
-      script.src =
+      const finalUrl =
         baseUrl +
         separator +
         "callback=" +
-        encodeURIComponent(
-          callbackName
-        ) +
+        callbackName +
         "&_=" +
         Date.now();
 
 
-      script.async =
-        true;
+      console.log(
+        "JSONP REQUEST:",
+        finalUrl
+      );
 
+
+      /*
+       * Jalankan request
+       */
+      script.src =
+        finalUrl;
+
+      script.async = true;
 
       document.head.appendChild(
         script
@@ -700,7 +688,6 @@ function requestJSONP(
   );
 
 }
-
 
 /* ==================================================
    SAVE CACHE
