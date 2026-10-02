@@ -7,35 +7,50 @@
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0">
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#2563eb"
+  >
 
   <meta
     name="description"
-    content="Portal SMK Maharati">
+    content="Portal SMK Maharati"
+  >
 
-  <title>Portal SMK Maharati</title>
+  <title>
+    SMK Maharati
+  </title>
 
   <link
     rel="stylesheet"
-    href="style.css">
+    href="style.css"
+  >
 
 </head>
 
 
 <body>
 
-
-  <main class="container">
+  <main class="page">
 
 
     <!-- HEADER -->
 
     <header class="header">
 
-      <div
-        id="logo"
-        class="logo">
-        🎓
+
+      <!-- LOGO DARI GITHUB -->
+
+      <div class="logo">
+
+        <img
+          src="assets/logo.png"
+          alt="Logo SMK Maharati"
+        >
+
       </div>
 
 
@@ -44,51 +59,95 @@
       </h1>
 
 
-      <p id="subtitle">
+      <p id="pageTitle">
         Portal Asesmen & Pembelajaran
       </p>
 
 
       <div
         id="clock"
-        class="clock">
+        class="clock"
+      >
+        --:--:--
+      </div>
 
-        Memuat waktu...
+
+      <div
+        id="connectionStatus"
+        class="connection-status loading"
+      >
+
+        <span
+          class="status-dot"
+        ></span>
+
+        <span id="statusText">
+          Menghubungkan...
+        </span>
 
       </div>
 
-    </header>
 
+    </header>
 
 
     <!-- MENU -->
 
     <section
       id="menuContainer"
-      class="menu-container">
+      class="menu-container"
+    >
 
-
-      <div class="loading">
+      <div class="loading-container">
 
         <div class="spinner"></div>
 
-        Memuat menu...
+        <p>
+          Memuat menu...
+        </p>
 
       </div>
-
 
     </section>
 
 
+    <!-- ERROR -->
+
+    <section
+      id="errorContainer"
+      class="error-container hidden"
+    >
+
+      <div class="error-icon">
+        ⚠️
+      </div>
+
+
+      <h3>
+        Tidak dapat terhubung ke server
+      </h3>
+
+
+      <p id="errorMessage">
+        Periksa koneksi internet
+        kemudian coba lagi.
+      </p>
+
+
+      <button
+        id="retryButton"
+        class="retry-button"
+      >
+        ↻ Coba Lagi
+      </button>
+
+    </section>
+
 
     <!-- FOOTER -->
 
-    <footer
-      id="footer"
-      class="footer">
-
+    <footer id="footer">
       © 2026 SMK Maharati
-
     </footer>
 
 
