@@ -1,0 +1,440 @@
+* {
+  box-sizing: border-box;
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+body {
+
+  margin: 0;
+
+  min-height: 100vh;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  color: #172033;
+
+  background:
+    radial-gradient(
+      circle at top,
+      #eaf2ff 0%,
+      #f7f9fc 45%,
+      #ffffff 100%
+    );
+
+  padding:
+    30px 15px;
+}
+
+
+.container {
+
+  width: 100%;
+
+  max-width: 680px;
+
+  margin:
+    0 auto;
+}
+
+
+/* =========================
+   HEADER
+   ========================= */
+
+.header {
+
+  text-align: center;
+
+  margin-bottom: 28px;
+}
+
+
+.logo {
+
+  width: 78px;
+
+  height: 78px;
+
+  margin:
+    0 auto 15px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #1769ff,
+      #1743ae
+    );
+
+  color: white;
+
+  font-size: 37px;
+
+  box-shadow:
+    0 12px 30px
+    rgba(23, 105, 255, .22);
+}
+
+
+.header h1 {
+
+  margin: 0;
+
+  font-size: 27px;
+
+  font-weight: 800;
+}
+
+
+.header p {
+
+  margin:
+    7px 0 0;
+
+  color: #667085;
+
+  font-size: 14px;
+}
+
+
+.clock {
+
+  display: inline-block;
+
+  margin-top: 14px;
+
+  padding:
+    7px 13px;
+
+  border-radius: 50px;
+
+  background: #edf4ff;
+
+  color: #2458bd;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+
+/* =========================
+   MENU
+   ========================= */
+
+.menu-container {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 13px;
+}
+
+
+.menu-card {
+
+  width: 100%;
+
+  min-height: 78px;
+
+  display: flex;
+
+  align-items: center;
+
+  padding:
+    13px 16px;
+
+  border:
+    1px solid #e7ebf2;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255,255,255,.94);
+
+  box-shadow:
+    0 5px 18px
+    rgba(20,40,80,.06);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease;
+}
+
+
+.menu-card.open {
+
+  cursor: pointer;
+}
+
+
+.menu-card.open:hover {
+
+  transform:
+    translateY(-2px);
+
+  border-color:
+    #cbdcff;
+
+  box-shadow:
+    0 12px 28px
+    rgba(20,40,80,.10);
+}
+
+
+.menu-card.locked {
+
+  background:
+    #f7f8fa;
+
+  opacity: .82;
+}
+
+
+/* =========================
+   ICON
+   ========================= */
+
+.menu-icon {
+
+  width: 50px;
+
+  height: 50px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  margin-right: 14px;
+
+  border-radius: 15px;
+
+  background:
+    #edf3ff;
+
+  font-size: 24px;
+}
+
+
+.menu-card.locked
+.menu-icon {
+
+  background:
+    #eceef2;
+}
+
+
+/* =========================
+   CONTENT
+   ========================= */
+
+.menu-content {
+
+  flex: 1;
+
+  min-width: 0;
+}
+
+
+.menu-title {
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  margin-bottom: 4px;
+}
+
+
+.menu-description {
+
+  font-size: 12px;
+
+  color: #7a8495;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+.menu-status {
+
+  margin-top: 5px;
+
+  font-size: 11px;
+
+  color: #667085;
+}
+
+
+.status-open {
+
+  color: #16834b;
+
+  font-weight: 600;
+}
+
+
+.status-before {
+
+  color: #c47700;
+}
+
+
+.status-after {
+
+  color: #777;
+}
+
+
+.menu-arrow {
+
+  margin-left: 10px;
+
+  font-size: 19px;
+}
+
+
+/* =========================
+   LOADING
+   ========================= */
+
+.loading {
+
+  text-align: center;
+
+  padding:
+    40px 20px;
+
+  color: #667085;
+}
+
+
+.spinner {
+
+  width: 30px;
+
+  height: 30px;
+
+  margin:
+    0 auto 12px;
+
+  border:
+    3px solid #dce5f8;
+
+  border-top-color:
+    #2864dc;
+
+  border-radius: 50%;
+
+  animation:
+    spin .8s linear infinite;
+}
+
+
+@keyframes spin {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================
+   EMPTY / ERROR
+   ========================= */
+
+.empty {
+
+  text-align: center;
+
+  padding:
+    40px 20px;
+
+  color: #7a8495;
+}
+
+
+.error {
+
+  padding:
+    20px;
+
+  text-align: center;
+
+  color: #b42318;
+
+  background:
+    #fff1f0;
+
+  border-radius: 15px;
+}
+
+
+/* =========================
+   FOOTER
+   ========================= */
+
+.footer {
+
+  margin-top: 30px;
+
+  text-align: center;
+
+  color: #98a2b3;
+
+  font-size: 11px;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media
+(max-width: 480px) {
+
+  body {
+
+    padding:
+      22px 12px;
+  }
+
+
+  .header h1 {
+
+    font-size: 24px;
+  }
+
+
+  .menu-card {
+
+    min-height: 74px;
+  }
+
+}
