@@ -1146,8 +1146,7 @@ function getMenuStatus(
 /* ==================================================
    MENU CLICK
 ================================================== */
-
-function handleMenuClick(
+async function handleMenuClick(
   menu,
   isOpen
 ) {
@@ -1163,29 +1162,133 @@ function handleMenuClick(
 
 
   /*
-   * Apps Script melakukan validasi
-   * waktu lagi.
+   * Tampilkan status.
    */
-  const url =
-    API_URL +
-    "?action=open&id=" +
-    encodeURIComponent(
-      menu.id
-    );
-
-
   setConnectionStatus(
     "loading",
     "Memverifikasi akses..."
   );
 
 
-  window.location.href =
-    url;
+  try {
+
+    /*
+     * Apps Script hanya menerima ID menu.
+     *
+     * Apps Script kemudian:
+     *
+     * 1. mencari menu di Spreadsheet
+     * 2. mengecek aktif/tidak
+     * 3. mengecek tanggal
+     * 4. mengecek jam
+     * 5. mengambil URL dari kolom E
+     */
+    const url =
+      API_URL +
+      "?action=open" +
+      "&id=" +
+      encodeURIComponent(
+        menu.id
+      );
+
+
+    /*
+     * Minta Apps Script
+     * mengembalikan data JSONP.
+     */
+    const data =
+      await requestJSONP(
+        url,
+        REQUEST_TIMEOUT
+      );
+
+
+    /*
+     * Validasi response.
+     */
+    if (
+      !data ||
+      data.success !== true
+    ) {
+
+      setConnectionStatus(
+        "online",
+        "Terhubung"
+      );
+
+
+      alert(
+        data &&
+        data.message
+
+          ? data.message
+
+          : "Menu tidak dapat dibuka."
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+     * Pastikan URL tujuan tersedia.
+     */
+    if (
+      !data.url
+    ) {
+
+      setConnectionStatus(
+        "error",
+        "URL tidak tersedia"
+      );
+
+
+      alert(
+        "URL tujuan menu tidak ditemukan."
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+     * PENTING:
+     *
+     * Browser sekarang langsung membuka
+     * URL asli dari kolom E Spreadsheet.
+     *
+     * BUKAN membuka URL Apps Script.
+     */
+    window.location.href =
+      data.url;
+
+
+  } catch (error) {
+
+    console.error(
+      "Gagal membuka menu:",
+      error
+    );
+
+
+    setConnectionStatus(
+      "error",
+      "Koneksi bermasalah"
+    );
+
+
+    alert(
+      "Tidak dapat memverifikasi akses menu. " +
+      "Silakan coba lagi."
+    );
+
+  }
 
 }
-
-
 /* ==================================================
    SHOW LOADING
 ================================================== */
