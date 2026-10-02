@@ -1201,7 +1201,7 @@ async function handleMenuClick(
         url,
         REQUEST_TIMEOUT
       );
-
+console.log("HASIL REQUEST OPEN:", data);
 
     /*
      * Validasi response.
