@@ -1,3 +1,7 @@
+/* ==================================================
+   RESET
+================================================== */
+
 * {
   box-sizing: border-box;
 }
@@ -15,53 +19,71 @@ body {
   min-height: 100vh;
 
   font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
     Arial,
-    Helvetica,
     sans-serif;
 
-  color: #172033;
-
   background:
-    radial-gradient(
-      circle at top,
-      #eaf2ff 0%,
-      #f7f9fc 45%,
+    linear-gradient(
+      180deg,
+      #eef5ff 0%,
+      #f8fafc 45%,
       #ffffff 100%
     );
 
-  padding:
-    30px 15px;
+  color:
+    #172033;
+
 }
 
 
-.container {
+/* ==================================================
+   PAGE
+================================================== */
+
+.page {
 
   width: 100%;
 
-  max-width: 680px;
+  max-width: 620px;
 
-  margin:
-    0 auto;
+  margin: 0 auto;
+
+  padding:
+    40px
+    20px
+    30px;
+
 }
 
 
-/* =========================
+/* ==================================================
    HEADER
-   ========================= */
+================================================== */
 
 .header {
 
   text-align: center;
 
-  margin-bottom: 28px;
+  margin-bottom:
+    28px;
+
 }
 
 
+/* ==================================================
+   LOGO
+================================================== */
+
 .logo {
 
-  width: 78px;
+  width: 100px;
 
-  height: 78px;
+  height: 100px;
 
   margin:
     0 auto 15px;
@@ -72,369 +94,734 @@ body {
 
   justify-content: center;
 
-  border-radius: 22px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #1769ff,
-      #1743ae
-    );
-
-  color: white;
-
-  font-size: 37px;
-
-  box-shadow:
-    0 12px 30px
-    rgba(23, 105, 255, .22);
 }
 
+
+.logo img {
+
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: contain;
+
+  display: block;
+
+}
+
+
+/* ==================================================
+   SCHOOL NAME
+================================================== */
 
 .header h1 {
 
   margin: 0;
 
-  font-size: 27px;
+  font-size: 25px;
 
-  font-weight: 800;
+  font-weight: 750;
+
+  letter-spacing:
+    -0.4px;
+
 }
 
+
+/* ==================================================
+   TITLE
+================================================== */
 
 .header p {
 
   margin:
-    7px 0 0;
+    7px
+    0
+    12px;
 
-  color: #667085;
+  color:
+    #64748b;
 
-  font-size: 14px;
+  font-size:
+    14px;
+
 }
 
+
+/* ==================================================
+   CLOCK
+================================================== */
 
 .clock {
 
-  display: inline-block;
-
-  margin-top: 14px;
+  display:
+    inline-block;
 
   padding:
-    7px 13px;
+    6px
+    12px;
 
-  border-radius: 50px;
+  border-radius:
+    20px;
 
-  background: #edf4ff;
+  background:
+    rgba(
+      37,
+      99,
+      235,
+      0.08
+    );
 
-  color: #2458bd;
+  color:
+    #2563eb;
 
-  font-size: 12px;
+  font-size:
+    13px;
 
-  font-weight: 600;
+  font-weight:
+    600;
+
 }
 
 
-/* =========================
+/* ==================================================
+   CONNECTION STATUS
+================================================== */
+
+.connection-status {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  margin-top:
+    10px;
+
+  font-size:
+    12px;
+
+  color:
+    #64748b;
+
+}
+
+
+.status-dot {
+
+  width:
+    7px;
+
+  height:
+    7px;
+
+  border-radius:
+    50%;
+
+  background:
+    #94a3b8;
+
+}
+
+
+.connection-status.online
+.status-dot {
+
+  background:
+    #22c55e;
+
+}
+
+
+.connection-status.offline
+.status-dot {
+
+  background:
+    #f59e0b;
+
+}
+
+
+.connection-status.error
+.status-dot {
+
+  background:
+    #ef4444;
+
+}
+
+
+.connection-status.loading
+.status-dot {
+
+  background:
+    #3b82f6;
+
+  animation:
+    pulse 1s infinite;
+
+}
+
+
+@keyframes pulse {
+
+  0% {
+    opacity: .35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: .35;
+  }
+
+}
+
+
+/* ==================================================
    MENU
-   ========================= */
+================================================== */
 
 .menu-container {
 
-  display: flex;
+  display:
+    flex;
 
-  flex-direction: column;
+  flex-direction:
+    column;
 
-  gap: 13px;
+  gap:
+    13px;
+
 }
 
 
+/* ==================================================
+   MENU CARD
+================================================== */
+
 .menu-card {
 
-  width: 100%;
+  width:
+    100%;
 
-  min-height: 78px;
-
-  display: flex;
-
-  align-items: center;
-
-  padding:
-    13px 16px;
+  min-height:
+    76px;
 
   border:
-    1px solid #e7ebf2;
+    1px solid #e2e8f0;
 
-  border-radius: 18px;
+  border-radius:
+    17px;
 
   background:
-    rgba(255,255,255,.94);
+    #ffffff;
 
   box-shadow:
     0 5px 18px
-    rgba(20,40,80,.06);
+    rgba(
+      15,
+      23,
+      42,
+      .05
+    );
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  text-align:
+    left;
+
+  padding:
+    13px
+    15px;
+
+  cursor:
+    pointer;
 
   transition:
     transform .18s ease,
     box-shadow .18s ease,
     border-color .18s ease;
+
 }
 
 
-.menu-card.open {
-
-  cursor: pointer;
-}
-
-
-.menu-card.open:hover {
+.menu-card:hover {
 
   transform:
     translateY(-2px);
 
-  border-color:
-    #cbdcff;
-
   box-shadow:
-    0 12px 28px
-    rgba(20,40,80,.10);
+    0 10px 25px
+    rgba(
+      15,
+      23,
+      42,
+      .09
+    );
+
+  border-color:
+    #bfdbfe;
+
 }
 
+
+.menu-card:active {
+
+  transform:
+    scale(.985);
+
+}
+
+
+/* ==================================================
+   LOCKED
+================================================== */
 
 .menu-card.locked {
 
-  background:
-    #f7f8fa;
+  cursor:
+    not-allowed;
 
-  opacity: .82;
+  opacity:
+    .65;
+
+  background:
+    #f8fafc;
+
 }
 
 
-/* =========================
+.menu-card.locked:hover {
+
+  transform:
+    none;
+
+  box-shadow:
+    0 5px 18px
+    rgba(
+      15,
+      23,
+      42,
+      .04
+    );
+
+  border-color:
+    #e2e8f0;
+
+}
+
+
+/* ==================================================
    ICON
-   ========================= */
+================================================== */
 
 .menu-icon {
 
-  width: 50px;
+  width:
+    50px;
 
-  height: 50px;
+  height:
+    50px;
 
-  flex-shrink: 0;
+  flex-shrink:
+    0;
 
-  display: flex;
+  margin-right:
+    13px;
 
-  align-items: center;
+  border-radius:
+    14px;
 
-  justify-content: center;
+  display:
+    flex;
 
-  margin-right: 14px;
+  align-items:
+    center;
 
-  border-radius: 15px;
+  justify-content:
+    center;
 
   background:
-    #edf3ff;
+    #eff6ff;
 
-  font-size: 24px;
+  font-size:
+    24px;
+
 }
 
 
-.menu-card.locked
-.menu-icon {
-
-  background:
-    #eceef2;
-}
-
-
-/* =========================
+/* ==================================================
    CONTENT
-   ========================= */
+================================================== */
 
 .menu-content {
 
-  flex: 1;
+  flex:
+    1;
 
-  min-width: 0;
+  min-width:
+    0;
+
 }
 
 
-.menu-title {
+.menu-name {
 
-  font-size: 16px;
+  margin:
+    0;
 
-  font-weight: 700;
+  font-size:
+    15px;
 
-  margin-bottom: 4px;
+  font-weight:
+    700;
+
 }
 
 
 .menu-description {
 
-  font-size: 12px;
+  margin:
+    4px
+    0
+    0;
 
-  color: #7a8495;
+  color:
+    #64748b;
 
-  white-space: nowrap;
+  font-size:
+    12px;
 
-  overflow: hidden;
+  line-height:
+    1.45;
 
-  text-overflow: ellipsis;
 }
 
 
+/* ==================================================
+   STATUS MENU
+================================================== */
+
 .menu-status {
 
-  margin-top: 5px;
+  flex-shrink:
+    0;
 
-  font-size: 11px;
+  margin-left:
+    10px;
 
-  color: #667085;
+  font-size:
+    20px;
+
 }
 
 
 .status-open {
 
-  color: #16834b;
+  color:
+    #2563eb;
 
-  font-weight: 600;
 }
 
 
-.status-before {
+.status-locked {
 
-  color: #c47700;
+  color:
+    #94a3b8;
+
 }
 
 
-.status-after {
-
-  color: #777;
-}
-
-
-.menu-arrow {
-
-  margin-left: 10px;
-
-  font-size: 19px;
-}
-
-
-/* =========================
+/* ==================================================
    LOADING
-   ========================= */
+================================================== */
 
-.loading {
-
-  text-align: center;
+.loading-container {
 
   padding:
-    40px 20px;
+    35px
+    20px;
 
-  color: #667085;
+  text-align:
+    center;
+
+  color:
+    #64748b;
+
 }
 
 
 .spinner {
 
-  width: 30px;
+  width:
+    34px;
 
-  height: 30px;
+  height:
+    34px;
 
   margin:
-    0 auto 12px;
+    0
+    auto
+    14px;
 
   border:
-    3px solid #dce5f8;
+    3px solid #dbeafe;
 
   border-top-color:
-    #2864dc;
+    #2563eb;
 
-  border-radius: 50%;
+  border-radius:
+    50%;
 
   animation:
     spin .8s linear infinite;
+
 }
 
 
 @keyframes spin {
 
   to {
-    transform: rotate(360deg);
+    transform:
+      rotate(360deg);
   }
 
 }
 
 
-/* =========================
-   EMPTY / ERROR
-   ========================= */
+/* ==================================================
+   ERROR
+================================================== */
 
-.empty {
-
-  text-align: center;
+.error-container {
 
   padding:
-    40px 20px;
-
-  color: #7a8495;
-}
-
-
-.error {
-
-  padding:
+    25px
     20px;
 
-  text-align: center;
-
-  color: #b42318;
+  text-align:
+    center;
 
   background:
-    #fff1f0;
+    #ffffff;
 
-  border-radius: 15px;
+  border:
+    1px solid #fee2e2;
+
+  border-radius:
+    17px;
+
 }
 
 
-/* =========================
+.error-icon {
+
+  font-size:
+    32px;
+
+  margin-bottom:
+    8px;
+
+}
+
+
+.error-container h3 {
+
+  margin:
+    0
+    0
+    7px;
+
+  font-size:
+    16px;
+
+}
+
+
+.error-container p {
+
+  margin:
+    0
+    0
+    16px;
+
+  color:
+    #64748b;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.5;
+
+}
+
+
+/* ==================================================
+   RETRY
+================================================== */
+
+.retry-button {
+
+  border:
+    none;
+
+  border-radius:
+    10px;
+
+  padding:
+    10px
+    17px;
+
+  background:
+    #2563eb;
+
+  color:
+    #ffffff;
+
+  font-size:
+    13px;
+
+  font-weight:
+    600;
+
+  cursor:
+    pointer;
+
+}
+
+
+.retry-button:hover {
+
+  background:
+    #1d4ed8;
+
+}
+
+
+/* ==================================================
    FOOTER
-   ========================= */
+================================================== */
 
-.footer {
+footer {
 
-  margin-top: 30px;
+  text-align:
+    center;
 
-  text-align: center;
+  margin-top:
+    35px;
 
-  color: #98a2b3;
+  color:
+    #94a3b8;
 
-  font-size: 11px;
+  font-size:
+    11px;
+
 }
 
 
-/* =========================
+/* ==================================================
+   HIDDEN
+================================================== */
+
+.hidden {
+
+  display:
+    none !important;
+
+}
+
+
+/* ==================================================
    MOBILE
-   ========================= */
+================================================== */
 
-@media
-(max-width: 480px) {
+@media (
+  max-width: 480px
+) {
 
-  body {
+  .page {
 
     padding:
-      22px 12px;
+      30px
+      14px
+      25px;
+
+  }
+
+
+  .logo {
+
+    width:
+      85px;
+
+    height:
+      85px;
+
   }
 
 
   .header h1 {
 
-    font-size: 24px;
+    font-size:
+      22px;
+
   }
 
 
   .menu-card {
 
-    min-height: 74px;
+    min-height:
+      70px;
+
+    padding:
+      11px
+      12px;
+
+  }
+
+
+  .menu-icon {
+
+    width:
+      45px;
+
+    height:
+      45px;
+
+    font-size:
+      21px;
+
+  }
+
+
+  .menu-name {
+
+    font-size:
+      14px;
+
+  }
+
+
+  .menu-description {
+
+    font-size:
+      11px;
+
   }
 
 }
