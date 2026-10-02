@@ -7,7 +7,7 @@
  * GANTI DENGAN URL WEB APP APPS SCRIPT ANDA
  */
 const API_URL =
-  "https://script.google.com/macros/s/AKfycby4VG8h7s9OZQ0xZJ8HW0vusAqJuguReZ68coG9CHhszla9WcRWD1pPF26BYn3HFoPZ/exec";
+  "https://script.google.com/macros/s/AKfycbzS7yDnfz5mfeX_aATuqDq_zDSldgSJInvQ_04gQwXXQjIV3q8tyVB9S64OVR5xxQg/exec";
 
 
 /*
