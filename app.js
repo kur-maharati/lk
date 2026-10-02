@@ -1,730 +1,140 @@
-/************************************************
- * PORTAL SMK MAHARATI
- * FRONTEND
- ************************************************/
+/* ==================================================
+   KONFIGURASI
+================================================== */
 
 
 /*
- * ==============================================
- * MASUKKAN URL WEB APP APPS SCRIPT DI SINI
- * ==============================================
+ * GANTI DENGAN URL WEB APP APPS SCRIPT ANDA
  */
-
 const API_URL =
-  'https://script.google.com/macros/s/AKfycbx6ZnKQ7Dg9uMkQbOfDEaBsawvq2aJYAZOwi5_urpQ-CLBA9mr06u0A3an8_IC0fg23/exec';
+  "https://script.google.com/macros/s/AKfycbwgf_PdyV7prK_qB21kXCfuVck89dlPfpu8HbHp4cWTdInqmh4vUHFgLq2DYVfloIfT/exec";
 
 
 /*
- * Data aplikasi
+ * Cache browser.
  */
-
-let menus = [];
-
-let serverOffset = 0;
+const CACHE_KEY =
+  "SMK_MAHARATI_PORTAL_CACHE_V1";
 
 
 /*
- * ==============================================
- * START
- * ==============================================
+ * Maksimal waktu menunggu satu request.
  */
+const REQUEST_TIMEOUT =
+  7000;
+
+
+/*
+ * Jumlah percobaan.
+ */
+const MAX_RETRY =
+  3;
+
+
+/*
+ * Jeda retry.
+ */
+const RETRY_DELAY = [
+  1000,
+  2500
+];
+
+
+/*
+ * Selisih waktu server dan browser.
+ */
+let serverTimeOffset =
+  0;
+
+
+/*
+ * Data menu saat ini.
+ */
+let currentMenus =
+  [];
+
+
+/* ==================================================
+   ELEMENT
+================================================== */
+
+const menuContainer =
+  document.getElementById(
+    "menuContainer"
+  );
+
+
+const errorContainer =
+  document.getElementById(
+    "errorContainer"
+  );
+
+
+const errorMessage =
+  document.getElementById(
+    "errorMessage"
+  );
+
+
+const retryButton =
+  document.getElementById(
+    "retryButton"
+  );
+
+
+const connectionStatus =
+  document.getElementById(
+    "connectionStatus"
+  );
+
+
+const statusText =
+  document.getElementById(
+    "statusText"
+  );
+
+
+const clockElement =
+  document.getElementById(
+    "clock"
+  );
+
+
+/* ==================================================
+   START
+================================================== */
 
 document.addEventListener(
-  'DOMContentLoaded',
-  function () {
+  "DOMContentLoaded",
+  function() {
 
-    loadMenus();
+    /*
+     * Jalankan jam.
+     */
+    startClock();
+
+
+    /*
+     * Tampilkan cache jika ada.
+     */
+    const hasCache =
+      loadCache();
+
+
+    /*
+     * Tetap minta data terbaru.
+     */
+    loadFromServer(
+      hasCache
+    );
 
   }
 );
 
 
-/*
- * ==============================================
- * JSONP
- * ==============================================
- *
- * Karena frontend berada di GitHub Pages
- * dan backend berada di Google Apps Script,
- * kita menggunakan JSONP.
- */
-
-function loadMenus() {
-
-  const callbackName =
-    'portalCallback_' +
-    Date.now();
-
-
-  window[callbackName] =
-    function (data) {
-
-      try {
-
-        if (!data.success) {
-
-          showError(
-            data.message ||
-            'Gagal mengambil data.'
-          );
-
-          return;
-
-        }
-
-
-        /*
-         * Hitung selisih waktu server
-         * dengan browser.
-         */
-
-        serverOffset =
-          data.serverTime -
-          Date.now();
-
-
-        /*
-         * Simpan menu
-         */
-
-        menus =
-          data.menus || [];
-
-
-        /*
-         * Tampilkan identitas
-         */
-
-        applySettings(
-          data.settings
-        );
-
-
-        /*
-         * Tampilkan menu
-         */
-
-        renderMenus();
-
-
-        /*
-         * Jalankan jam
-         */
-
-        startClock();
-
-
-        /*
-         * Update status menu
-         * setiap 1 detik.
-         */
-
-        setInterval(
-          renderMenus,
-          1000
-        );
-
-      }
-
-      finally {
-
-        delete
-          window[callbackName];
-
-      }
-
-    };
-
-
-  const script =
-    document.createElement('script');
-
-
-  script.src =
-    API_URL +
-    '?action=menus' +
-    '&callback=' +
-    callbackName;
-
-
-  script.onerror =
-    function () {
-
-      showError(
-        'Tidak dapat terhubung ' +
-        'ke server.'
-      );
-
-    };
-
-
-  document.body.appendChild(script);
-
-}
-
-
-/*
- * ==============================================
- * SETTINGS
- * ==============================================
- */
-
-function applySettings(settings) {
-
-  if (!settings) {
-    return;
-  }
-
-
-  document.getElementById(
-    'logo'
-  ).textContent =
-    settings.logo ||
-    '🎓';
-
-
-  document.getElementById(
-    'schoolName'
-  ).textContent =
-    settings.namaSekolah ||
-    'SMK Maharati';
-
-
-  document.getElementById(
-    'subtitle'
-  ).textContent =
-    settings.judul ||
-    'Portal Asesmen & Pembelajaran';
-
-
-  document.getElementById(
-    'footer'
-  ).textContent =
-    settings.footer ||
-    '© 2026 SMK Maharati';
-
-}
-
-
-/*
- * ==============================================
- * RENDER MENU
- * ==============================================
- */
-
-function renderMenus() {
-
-  const container =
-    document.getElementById(
-      'menuContainer'
-    );
-
-
-  const activeMenus =
-    menus.filter(
-      function (menu) {
-
-        return menu.aktif;
-
-      }
-    );
-
-
-  if (
-    activeMenus.length === 0
-  ) {
-
-    container.innerHTML = `
-
-      <div class="empty">
-
-        Belum ada menu yang tersedia.
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  /*
-   * Render semua menu
-   */
-
-  container.innerHTML = '';
-
-
-  activeMenus.forEach(
-    function (menu) {
-
-      const status =
-        getMenuStatus(menu);
-
-
-      const card =
-        document.createElement(
-          'div'
-        );
-
-
-      card.className =
-        'menu-card ' +
-        (
-          status.open
-            ? 'open'
-            : 'locked'
-        );
-
-
-      /*
-       * ICON
-       */
-
-      const icon =
-        status.open
-          ? menu.icon
-          : '🔒';
-
-
-      /*
-       * STATUS
-       */
-
-      let statusHTML = '';
-
-
-      if (
-        status.type === 'always'
-      ) {
-
-        statusHTML = `
-
-          <span class="status-open">
-
-            ● Tersedia
-
-          </span>
-
-        `;
-
-      }
-
-
-      else if (
-        status.type === 'open'
-      ) {
-
-        statusHTML = `
-
-          <span class="status-open">
-
-            ● Sedang dibuka
-
-          </span>
-
-        `;
-
-      }
-
-
-      else if (
-        status.type === 'before'
-      ) {
-
-        statusHTML = `
-
-          <span class="status-before">
-
-            🔒 Dibuka ${status.label}
-
-          </span>
-
-        `;
-
-      }
-
-
-      else if (
-        status.type === 'after'
-      ) {
-
-        statusHTML = `
-
-          <span class="status-after">
-
-            🔒 Sudah ditutup
-
-          </span>
-
-        `;
-
-      }
-
-
-      /*
-       * HTML CARD
-       */
-
-      card.innerHTML = `
-
-        <div class="menu-icon">
-
-          ${escapeHtml(icon)}
-
-        </div>
-
-
-        <div class="menu-content">
-
-          <div class="menu-title">
-
-            ${escapeHtml(menu.nama)}
-
-          </div>
-
-
-          <div class="menu-description">
-
-            ${escapeHtml(menu.deskripsi)}
-
-          </div>
-
-
-          <div class="menu-status">
-
-            ${statusHTML}
-
-          </div>
-
-        </div>
-
-
-        <div class="menu-arrow">
-
-          ${status.open ? '➜' : '🔒'}
-
-        </div>
-
-      `;
-
-
-      /*
-       * Hanya menu yang sedang OPEN
-       * yang dapat diklik.
-       */
-
-      if (
-        status.open
-      ) {
-
-        card.addEventListener(
-          'click',
-          function () {
-
-            openMenu(
-              menu.id
-            );
-
-          }
-        );
-
-      }
-
-
-      container.appendChild(
-        card
-      );
-
-    }
-  );
-
-}
-
-
-/*
- * ==============================================
- * STATUS MENU
- * ==============================================
- */
-
-function getMenuStatus(menu) {
-
-  /*
-   * Tidak punya jadwal =
-   * selalu terbuka.
-   */
-
-  if (
-    !menu.tanggalMulai &&
-    !menu.tanggalSelesai
-  ) {
-
-    return {
-
-      open: true,
-
-      type: 'always',
-
-      label: ''
-
-    };
-
-  }
-
-
-  const now =
-    new Date(
-      Date.now() +
-      serverOffset
-    );
-
-
-  let start = null;
-
-  let end = null;
-
-
-  /*
-   * START
-   */
-
-  if (
-    menu.tanggalMulai
-  ) {
-
-    start =
-      parseDateTime(
-        menu.tanggalMulai,
-        menu.jamMulai ||
-        '00:00'
-      );
-
-  }
-
-
-  /*
-   * END
-   */
-
-  if (
-    menu.tanggalSelesai
-  ) {
-
-    end =
-      parseDateTime(
-        menu.tanggalSelesai,
-        menu.jamSelesai ||
-        '23:59'
-      );
-
-  }
-
-
-  /*
-   * BELUM BUKA
-   */
-
-  if (
-    start &&
-    now < start
-  ) {
-
-    return {
-
-      open: false,
-
-      type: 'before',
-
-      label:
-        formatDateTime(start)
-
-    };
-
-  }
-
-
-  /*
-   * SUDAH TUTUP
-   */
-
-  if (
-    end &&
-    now > end
-  ) {
-
-    return {
-
-      open: false,
-
-      type: 'after',
-
-      label:
-        formatDateTime(end)
-
-    };
-
-  }
-
-
-  /*
-   * SEDANG BUKA
-   */
-
-  return {
-
-    open: true,
-
-    type: 'open',
-
-    label: ''
-
-  };
-
-}
-
-
-/*
- * ==============================================
- * OPEN MENU
- * ==============================================
- */
-
-function openMenu(id) {
-
-  /*
-   * Jangan langsung membuka URL.
-   *
-   * Kirim ID ke Apps Script.
-   *
-   * Apps Script akan mengecek ulang
-   * waktu sebelum redirect.
-   */
-
-  const url =
-    API_URL +
-    '?action=open&id=' +
-    encodeURIComponent(id);
-
-
-  window.location.href =
-    url;
-
-}
-
-
-/*
- * ==============================================
- * PARSE DATE
- * ==============================================
- */
-
-function parseDateTime(
-  dateString,
-  timeString
-) {
-
-  const date =
-    dateString.split('-');
-
-
-  const time =
-    timeString.split(':');
-
-
-  return new Date(
-
-    Number(date[0]),
-
-    Number(date[1]) - 1,
-
-    Number(date[2]),
-
-    Number(time[0] || 0),
-
-    Number(time[1] || 0),
-
-    0
-
-  );
-
-}
-
-
-/*
- * ==============================================
- * FORMAT DATE TIME
- * ==============================================
- */
-
-function formatDateTime(date) {
-
-  const months = [
-
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'Mei',
-    'Jun',
-    'Jul',
-    'Agu',
-    'Sep',
-    'Okt',
-    'Nov',
-    'Des'
-
-  ];
-
-
-  const day =
-    String(
-      date.getDate()
-    ).padStart(2, '0');
-
-
-  const month =
-    months[
-      date.getMonth()
-    ];
-
-
-  const hour =
-    String(
-      date.getHours()
-    ).padStart(2, '0');
-
-
-  const minute =
-    String(
-      date.getMinutes()
-    ).padStart(2, '0');
-
-
-  return (
-
-    day +
-    ' ' +
-    month +
-    ' ' +
-    date.getFullYear() +
-    ' ' +
-    hour +
-    ':' +
-    minute +
-    ' WIB'
-
-  );
-
-}
-
-
-/*
- * ==============================================
- * CLOCK
- * ==============================================
- */
+/* ==================================================
+   CLOCK
+================================================== */
 
 function startClock() {
 
@@ -739,143 +149,1271 @@ function startClock() {
 }
 
 
-/*
- * ==============================================
- * UPDATE CLOCK
- * ==============================================
- */
-
 function updateClock() {
 
   const now =
     new Date(
       Date.now() +
-      serverOffset
+      serverTimeOffset
     );
 
 
-  const day =
-    String(
-      now.getDate()
-    ).padStart(2, '0');
-
-
-  const month =
-    String(
-      now.getMonth() + 1
-    ).padStart(2, '0');
-
-
-  const year =
-    now.getFullYear();
-
-
-  const hour =
+  const hours =
     String(
       now.getHours()
-    ).padStart(2, '0');
+    ).padStart(
+      2,
+      "0"
+    );
 
 
-  const minute =
+  const minutes =
     String(
       now.getMinutes()
-    ).padStart(2, '0');
+    ).padStart(
+      2,
+      "0"
+    );
 
 
-  const second =
+  const seconds =
     String(
       now.getSeconds()
-    ).padStart(2, '0');
+    ).padStart(
+      2,
+      "0"
+    );
 
 
-  document.getElementById(
-    'clock'
-  ).textContent =
-
-    day +
-    '/' +
-    month +
-    '/' +
-    year +
-    ' • ' +
-    hour +
-    ':' +
-    minute +
-    ':' +
-    second +
-    ' WIB';
+  clockElement.textContent =
+    `${hours}:${minutes}:${seconds}`;
 
 }
 
 
-/*
- * ==============================================
- * ERROR
- * ==============================================
- */
+/* ==================================================
+   LOAD CACHE
+================================================== */
 
-function showError(message) {
+function loadCache() {
 
-  document.getElementById(
-    'menuContainer'
-  ).innerHTML = `
+  try {
 
-    <div class="error">
+    const raw =
+      localStorage.getItem(
+        CACHE_KEY
+      );
 
-      ⚠️<br><br>
 
-      ${escapeHtml(message)}
+    if (!raw) {
 
-    </div>
+      return false;
 
-  `;
+    }
+
+
+    const cache =
+      JSON.parse(
+        raw
+      );
+
+
+    if (
+      !cache ||
+      !Array.isArray(
+        cache.menus
+      )
+    ) {
+
+      return false;
+
+    }
+
+
+    /*
+     * Gunakan data cache.
+     */
+    currentMenus =
+      cache.menus;
+
+
+    /*
+     * Setting.
+     */
+    renderSettings(
+      cache.settings ||
+      {}
+    );
+
+
+    /*
+     * Menu.
+     */
+    renderMenus(
+      currentMenus
+    );
+
+
+    /*
+     * Status.
+     */
+    setConnectionStatus(
+      "offline",
+      "Data tersimpan"
+    );
+
+
+    return true;
+
+  } catch (error) {
+
+    console.warn(
+      "Cache error:",
+      error
+    );
+
+
+    return false;
+
+  }
 
 }
 
 
-/*
- * ==============================================
- * ESCAPE HTML
- * ==============================================
- */
+/* ==================================================
+   LOAD SERVER
+================================================== */
 
-function escapeHtml(text) {
+async function loadFromServer(
+  hasCache
+) {
 
-  if (
-    text === null ||
-    text === undefined
-  ) {
+  hideError();
 
-    return '';
+
+  setConnectionStatus(
+    "loading",
+    hasCache
+      ? "Memperbarui data..."
+      : "Menghubungkan..."
+  );
+
+
+  if (!hasCache) {
+
+    showLoading(
+      "Menghubungkan ke server..."
+    );
 
   }
 
 
-  return String(text)
+  let lastError =
+    null;
+
+
+  /*
+   * RETRY
+   */
+  for (
+    let attempt = 1;
+    attempt <= MAX_RETRY;
+    attempt++
+  ) {
+
+    try {
+
+      if (!hasCache) {
+
+        showLoading(
+
+          attempt === 1
+
+            ? "Memuat menu..."
+
+            : `Mencoba kembali (${attempt}/${MAX_RETRY})...`
+
+        );
+
+      }
+
+
+      /*
+       * Panggil Apps Script.
+       */
+      const data =
+        await requestJSONP(
+          API_URL +
+          "?action=menus",
+          REQUEST_TIMEOUT
+        );
+
+
+      /*
+       * Validasi response.
+       */
+      if (
+        !data ||
+        data.success !== true
+      ) {
+
+        throw new Error(
+          data &&
+          data.message
+
+            ? data.message
+
+            : "Response server tidak valid."
+        );
+
+      }
+
+
+      /*
+       * Hitung waktu server.
+       */
+      if (
+        data.serverTime
+      ) {
+
+        serverTimeOffset =
+          data.serverTime -
+          Date.now();
+
+      }
+
+
+      /*
+       * Simpan menu.
+       */
+      currentMenus =
+        Array.isArray(
+          data.menus
+        )
+          ? data.menus
+          : [];
+
+
+      /*
+       * Render setting.
+       */
+      renderSettings(
+        data.settings ||
+        {}
+      );
+
+
+      /*
+       * Render menu.
+       */
+      renderMenus(
+        currentMenus
+      );
+
+
+      /*
+       * Simpan cache.
+       */
+      saveCache(
+        data
+      );
+
+
+      /*
+       * Berhasil.
+       */
+      setConnectionStatus(
+        "online",
+        "Terhubung"
+      );
+
+
+      hideError();
+
+
+      return;
+
+
+    } catch (error) {
+
+      lastError =
+        error;
+
+
+      console.warn(
+        "Request gagal:",
+        error
+      );
+
+
+      /*
+       * Retry.
+       */
+      if (
+        attempt <
+        MAX_RETRY
+      ) {
+
+        const delay =
+          RETRY_DELAY[
+            attempt - 1
+          ] || 2000;
+
+
+        if (!hasCache) {
+
+          showLoading(
+            "Server belum merespons. Mencoba lagi..."
+          );
+
+        }
+
+
+        await sleep(
+          delay
+        );
+
+      }
+
+    }
+
+  }
+
+
+  /*
+   * Semua retry gagal.
+   */
+
+  if (hasCache) {
+
+    /*
+     * Jangan hapus menu.
+     *
+     * Gunakan cache.
+     */
+    setConnectionStatus(
+      "offline",
+      "Menggunakan data tersimpan"
+    );
+
+
+    return;
+
+  }
+
+
+  /*
+   * Tidak ada cache.
+   */
+  setConnectionStatus(
+    "error",
+    "Tidak terhubung"
+  );
+
+
+  showError(
+    getFriendlyError(
+      lastError
+    )
+  );
+
+}
+
+
+/* ==================================================
+   JSONP REQUEST
+================================================== */
+
+function requestJSONP(
+  baseUrl,
+  timeout
+) {
+
+  return new Promise(
+    function(
+      resolve,
+      reject
+    ) {
+
+      /*
+       * Callback unik.
+       */
+      const callbackName =
+        "portalCallback_" +
+        Date.now() +
+        "_" +
+        Math.random()
+          .toString(36)
+          .substring(2);
+
+
+      /*
+       * Script.
+       */
+      const script =
+        document.createElement(
+          "script"
+        );
+
+
+      let finished =
+        false;
+
+
+      /*
+       * Cleanup.
+       */
+      function cleanup() {
+
+        if (
+          finished
+        ) {
+
+          return;
+
+        }
+
+
+        finished =
+          true;
+
+
+        clearTimeout(
+          timer
+        );
+
+
+        try {
+
+          delete window[
+            callbackName
+          ];
+
+        } catch (error) {
+
+          window[
+            callbackName
+          ] = undefined;
+
+        }
+
+
+        if (
+          script.parentNode
+        ) {
+
+          script.parentNode
+            .removeChild(
+              script
+            );
+
+        }
+
+      }
+
+
+      /*
+       * Callback JSONP.
+       */
+      window[
+        callbackName
+      ] =
+        function(data) {
+
+          cleanup();
+
+          resolve(
+            data
+          );
+
+        };
+
+
+      /*
+       * Error.
+       */
+      script.onerror =
+        function() {
+
+          cleanup();
+
+          reject(
+            new Error(
+              "Tidak dapat terhubung ke server."
+            )
+          );
+
+        };
+
+
+      /*
+       * TIMEOUT.
+       */
+      const timer =
+        setTimeout(
+          function() {
+
+            cleanup();
+
+            reject(
+              new Error(
+                "Koneksi ke server terlalu lama."
+              )
+            );
+
+          },
+          timeout
+        );
+
+
+      /*
+       * Anti browser cache.
+       */
+      const separator =
+        baseUrl.includes(
+          "?"
+        )
+          ? "&"
+          : "?";
+
+
+      script.src =
+        baseUrl +
+        separator +
+        "callback=" +
+        encodeURIComponent(
+          callbackName
+        ) +
+        "&_=" +
+        Date.now();
+
+
+      script.async =
+        true;
+
+
+      document.head.appendChild(
+        script
+      );
+
+    }
+  );
+
+}
+
+
+/* ==================================================
+   SAVE CACHE
+================================================== */
+
+function saveCache(
+  data
+) {
+
+  try {
+
+    /*
+     * Hanya simpan data publik.
+     *
+     * URL tidak disimpan.
+     */
+    const menus =
+      Array.isArray(
+        data.menus
+      )
+
+        ? data.menus.map(
+            function(menu) {
+
+              return {
+
+                id:
+                  menu.id,
+
+                name:
+                  menu.name,
+
+                description:
+                  menu.description,
+
+                icon:
+                  menu.icon,
+
+                startTimestamp:
+                  menu.startTimestamp,
+
+                endTimestamp:
+                  menu.endTimestamp,
+
+                active:
+                  menu.active,
+
+                order:
+                  menu.order
+
+              };
+
+            }
+          )
+
+        : [];
+
+
+    const cache = {
+
+      savedAt:
+        Date.now(),
+
+      serverTime:
+        data.serverTime ||
+        null,
+
+      settings:
+        data.settings ||
+        {},
+
+      menus:
+        menus
+
+    };
+
+
+    localStorage.setItem(
+
+      CACHE_KEY,
+
+      JSON.stringify(
+        cache
+      )
+
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "Tidak dapat menyimpan cache:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ==================================================
+   RENDER SETTINGS
+================================================== */
+
+function renderSettings(
+  settings
+) {
+
+  const schoolName =
+    document.getElementById(
+      "schoolName"
+    );
+
+
+  const pageTitle =
+    document.getElementById(
+      "pageTitle"
+    );
+
+
+  const footer =
+    document.getElementById(
+      "footer"
+    );
+
+
+  if (
+    settings.schoolName
+  ) {
+
+    schoolName.textContent =
+      settings.schoolName;
+
+
+    document.title =
+      settings.schoolName;
+
+  }
+
+
+  if (
+    settings.title
+  ) {
+
+    pageTitle.textContent =
+      settings.title;
+
+  }
+
+
+  if (
+    settings.footer
+  ) {
+
+    footer.textContent =
+      settings.footer;
+
+  }
+
+}
+
+
+/* ==================================================
+   RENDER MENU
+================================================== */
+
+function renderMenus(
+  menus
+) {
+
+  menuContainer.innerHTML =
+    "";
+
+
+  if (
+    !Array.isArray(
+      menus
+    ) ||
+    menus.length === 0
+  ) {
+
+    menuContainer.innerHTML =
+
+      `
+      <div class="loading-container">
+
+        <p>
+          Belum ada menu tersedia.
+        </p>
+
+      </div>
+      `;
+
+
+    return;
+
+  }
+
+
+  menus.forEach(
+    function(menu) {
+
+      const card =
+        createMenuCard(
+          menu
+        );
+
+
+      menuContainer.appendChild(
+        card
+      );
+
+    }
+  );
+
+}
+
+
+/* ==================================================
+   CREATE MENU
+================================================== */
+
+function createMenuCard(
+  menu
+) {
+
+  const card =
+    document.createElement(
+      "div"
+    );
+
+
+  const status =
+    getMenuStatus(
+      menu
+    );
+
+
+  const isOpen =
+    status === "open";
+
+
+  card.className =
+    "menu-card " +
+    (
+      isOpen
+        ? ""
+        : "locked"
+    );
+
+
+  /*
+   * ICON
+   */
+  const icon =
+    document.createElement(
+      "div"
+    );
+
+
+  icon.className =
+    "menu-icon";
+
+
+  icon.textContent =
+    menu.icon ||
+    "🔗";
+
+
+  /*
+   * CONTENT
+   */
+  const content =
+    document.createElement(
+      "div"
+    );
+
+
+  content.className =
+    "menu-content";
+
+
+  const name =
+    document.createElement(
+      "div"
+    );
+
+
+  name.className =
+    "menu-name";
+
+
+  name.textContent =
+    menu.name ||
+    "Menu";
+
+
+  const description =
+    document.createElement(
+      "div"
+    );
+
+
+  description.className =
+    "menu-description";
+
+
+  description.textContent =
+    menu.description ||
+    "";
+
+
+  content.appendChild(
+    name
+  );
+
+
+  content.appendChild(
+    description
+  );
+
+
+  /*
+   * STATUS
+   */
+  const statusElement =
+    document.createElement(
+      "div"
+    );
+
+
+  statusElement.className =
+    "menu-status " +
+    (
+      isOpen
+        ? "status-open"
+        : "status-locked"
+    );
+
+
+  statusElement.textContent =
+    isOpen
+      ? "↗"
+      : "🔒";
+
+
+  /*
+   * Gabungkan.
+   */
+  card.appendChild(
+    icon
+  );
+
+
+  card.appendChild(
+    content
+  );
+
+
+  card.appendChild(
+    statusElement
+  );
+
+
+  /*
+   * Click.
+   */
+  card.addEventListener(
+    "click",
+    function() {
+
+      handleMenuClick(
+        menu,
+        isOpen
+      );
+
+    }
+  );
+
+
+  return card;
+
+}
+
+
+/* ==================================================
+   MENU STATUS
+================================================== */
+
+function getMenuStatus(
+  menu
+) {
+
+  /*
+   * Tidak aktif.
+   */
+  if (
+    !menu.active
+  ) {
+
+    return "closed";
+
+  }
+
+
+  const now =
+    Date.now() +
+    serverTimeOffset;
+
+
+  /*
+   * Belum mulai.
+   */
+  if (
+    menu.startTimestamp &&
+    now <
+      menu.startTimestamp
+  ) {
+
+    return "closed";
+
+  }
+
+
+  /*
+   * Sudah selesai.
+   */
+  if (
+    menu.endTimestamp &&
+    now >
+      menu.endTimestamp
+  ) {
+
+    return "closed";
+
+  }
+
+
+  return "open";
+
+}
+
+
+/* ==================================================
+   MENU CLICK
+================================================== */
+
+function handleMenuClick(
+  menu,
+  isOpen
+) {
+
+  /*
+   * Terkunci.
+   */
+  if (!isOpen) {
+
+    return;
+
+  }
+
+
+  /*
+   * Apps Script melakukan validasi
+   * waktu lagi.
+   */
+  const url =
+    API_URL +
+    "?action=open&id=" +
+    encodeURIComponent(
+      menu.id
+    );
+
+
+  setConnectionStatus(
+    "loading",
+    "Memverifikasi akses..."
+  );
+
+
+  window.location.href =
+    url;
+
+}
+
+
+/* ==================================================
+   SHOW LOADING
+================================================== */
+
+function showLoading(
+  message
+) {
+
+  hideError();
+
+
+  menuContainer.innerHTML =
+
+    `
+    <div class="loading-container">
+
+      <div class="spinner"></div>
+
+      <p>
+        ${escapeHtml(message)}
+      </p>
+
+    </div>
+    `;
+
+}
+
+
+/* ==================================================
+   SHOW ERROR
+================================================== */
+
+function showError(
+  message
+) {
+
+  errorMessage.textContent =
+    message;
+
+
+  errorContainer.classList.remove(
+    "hidden"
+  );
+
+
+  menuContainer.innerHTML =
+    "";
+
+
+  retryButton.onclick =
+    function() {
+
+      loadFromServer(
+        false
+      );
+
+    };
+
+}
+
+
+/* ==================================================
+   HIDE ERROR
+================================================== */
+
+function hideError() {
+
+  errorContainer.classList.add(
+    "hidden"
+  );
+
+}
+
+
+/* ==================================================
+   STATUS
+================================================== */
+
+function setConnectionStatus(
+  type,
+  message
+) {
+
+  connectionStatus.className =
+    "connection-status " +
+    type;
+
+
+  statusText.textContent =
+    message;
+
+}
+
+
+/* ==================================================
+   FRIENDLY ERROR
+================================================== */
+
+function getFriendlyError(
+  error
+) {
+
+  if (!error) {
+
+    return (
+      "Server tidak dapat dihubungi. " +
+      "Silakan coba lagi."
+    );
+
+  }
+
+
+  const message =
+    String(
+      error.message ||
+      ""
+    )
+      .toLowerCase();
+
+
+  if (
+    message.includes(
+      "terlalu lama"
+    )
+  ) {
+
+    return (
+      "Server membutuhkan waktu terlalu lama " +
+      "untuk merespons."
+    );
+
+  }
+
+
+  return (
+    "Data menu belum dapat diperbarui. " +
+    "Periksa koneksi internet lalu coba lagi."
+  );
+
+}
+
+
+/* ==================================================
+   SLEEP
+================================================== */
+
+function sleep(
+  milliseconds
+) {
+
+  return new Promise(
+    function(resolve) {
+
+      setTimeout(
+        resolve,
+        milliseconds
+      );
+
+    }
+  );
+
+}
+
+
+/* ==================================================
+   ESCAPE HTML
+================================================== */
+
+function escapeHtml(
+  value
+) {
+
+  return String(
+    value
+  )
 
     .replace(
       /&/g,
-      '&amp;'
+      "&amp;"
     )
 
     .replace(
       /</g,
-      '&lt;'
+      "&lt;"
     )
 
     .replace(
       />/g,
-      '&gt;'
+      "&gt;"
     )
 
     .replace(
       /"/g,
-      '&quot;'
+      "&quot;"
     )
 
     .replace(
       /'/g,
-      '&#039;'
+      "&#039;"
     );
 
 }
+
+
+/* ==================================================
+   UPDATE MENU OTOMATIS
+================================================== */
+
+/*
+ * Setiap detik mengecek apakah menu
+ * sudah masuk waktu buka/tutup.
+ *
+ * Jadi tidak perlu refresh halaman.
+ */
+
+setInterval(
+  function() {
+
+    if (
+      currentMenus.length > 0
+    ) {
+
+      renderMenus(
+        currentMenus
+      );
+
+    }
+
+  },
+  1000
+);
